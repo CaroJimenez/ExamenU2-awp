@@ -1,7 +1,6 @@
 <template>
   <div class="main">
     <div class="booksContainer">
-      <h3>Cards go here</h3>
       <div
         class="cardContainer"
         v-for="(book, index) in books"
@@ -46,12 +45,17 @@
 
 <script>
 import Vue from "vue";
+import axios from "axios";
 export default Vue.extend({
   data() {
     return {
       books: [],
+
       draggedBookId: null,
     };
+  },
+  mounted() {
+    this.fetchData();
   },
   methods: {
     handleDragStart(bookId) {
@@ -61,7 +65,17 @@ export default Vue.extend({
       if (action === "edit") {
         console.log("Editando libro con ID:", this.draggedBookId);
       } else if (action === "delete") {
-        console.log("Eliminando libro con ID:", this.draggedBookId);
+        axios.delete(`http://localhost:8080/books/${this.draggedBookId}`);
+        this.fetchData();
+      }
+    },
+    async fetchData() {
+      try {
+        const response = await axios.get("http://localhost:8080/books/");
+        this.books = response.data.results;
+        console.log("Books:", this.books);
+      } catch (error) {
+        console.error("Error fetching books:", error);
       }
     },
   },
@@ -86,7 +100,7 @@ export default Vue.extend({
 }
 .updateContainer {
   background-color: rgb(255, 180, 19);
-  height: 100px;
+  height: 200px;
 
   display: flex;
   justify-content: center;
@@ -94,7 +108,7 @@ export default Vue.extend({
 }
 .deleteContainer {
   background-color: #ff0000;
-  height: 100px;
+  height: 200px;
   display: flex;
   justify-content: center;
   align-items: center;
